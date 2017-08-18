@@ -1,4 +1,5 @@
 #Kaggle House Prices
+library(plyr)
 library(rpart)
 library(rattle)
 library(rpart.plot)
@@ -8,15 +9,27 @@ library(randomForest)
 
 dataF <- train
 
-fit1 <- rpart(SalePrice ~ MSSubClass + LotArea + Neighborhood + BldgType, data=dataF, method='class',
-                control=rpart.control(minsplit=25, cp=0.002))
-fancyRpartPlot(fit1)
+dataF$MSSubClass <- as.factor(dataF$MSSubClass)
+dataF$MSSubClass <- revalue(dataF$MSSubClass, c("30"="20","50"="45","70"="60","85"="80","150"="120","180"="160"))
+dataF$MSSubClass <- revalue(dataF$MSSubClass, c("40"="20","75"="60"))
 
-fit2 <- rpart(SalePrice ~ BldgType + OverallQual + LotArea + Neighborhood, data=dataF, method='class',
-              control=rpart.control(minsplit=25, cp=0.002))
 
-print(predict(fit1, data=test, type='class'))
 
-pred <- predict(fit1, data=test, type='class')
+#fit1 <- rpart(SalePrice ~ MSSubClass + LotArea + Neighborhood + BldgType, data=dataF, method='class',
+ #               control=rpart.control(minsplit=25, cp=0.002))
+#fancyRpartPlot(fit1)
 
-write.csv(pred, "test_res4.csv") #OverallQual
+
+#Best
+fit2 <- rpart(SalePrice ~ MSSubClass + as.factor(OverallQual) + as.factor(LotArea) + as.factor(Neighborhood), data=dataF, method='class',
+              control=rpart.control(minsplit=20, cp=0.002))
+
+
+fit3 <- rpart(SalePrice ~  MSSubClass + GarageCars + BldgType + OverallQual + LotArea + Neighborhood + BsmtUnfSF, data=dataF, method='class',
+              control=rpart.control(minsplit=15, cp=0.002))
+
+print(predict(fit3, data=test, type='class'))
+
+pred <- predict(fit3, data=test, type='class')
+
+write.csv(pred, "test_res9.csv") #OverallQual
